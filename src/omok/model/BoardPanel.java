@@ -26,6 +26,7 @@ public class BoardPanel extends JPanel {
         super.paintComponent(g);
         drawBoard(g);
         drawStones(g);
+        highlightStones(g);
     }
 
     private void drawBoard(Graphics g) {
@@ -53,6 +54,26 @@ public class BoardPanel extends JPanel {
                     }
 
                     g.setColor(player.getColor());
+                    g.fillOval(x, y, 2 * STONE_RADIUS, 2 * STONE_RADIUS);
+                }
+            }
+        }
+    }
+
+    private void highlightStones(Graphics g) {
+        Place[][] intersections = board.getWinningStones();
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                Place place = intersections[i][j];
+                if (place.isOccupied()) {
+                    int x = PADDING + i * CELL_SIZE - STONE_RADIUS;
+                    int y = PADDING + j * CELL_SIZE - STONE_RADIUS;
+                    Player player = place.getPlayer();
+
+                    g.setColor(Color.BLACK);
+                    g.drawOval(x, y, 2 * STONE_RADIUS, 2 * STONE_RADIUS);
+
+                    g.setColor(Color.GREEN);
                     g.fillOval(x, y, 2 * STONE_RADIUS, 2 * STONE_RADIUS);
                 }
             }

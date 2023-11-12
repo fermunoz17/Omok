@@ -10,6 +10,8 @@ public class OmokGame extends JFrame {
     private JButton humanGameButton;
     private JButton cpuGameButton;
 
+    private JButton startButton;
+
     public OmokGame() {
         setupInitialUI();
     }
@@ -22,9 +24,12 @@ public class OmokGame extends JFrame {
 
         humanGameButton = new JButton("Human vs. Human");
         cpuGameButton = new JButton("Human vs. CPU");
+        startButton = new JButton("Start Game");
 
         humanGameButton.addActionListener(this::startHumanGame);
         cpuGameButton.addActionListener(this::startCpuGame);
+
+
 
         add(humanGameButton);
         add(cpuGameButton);

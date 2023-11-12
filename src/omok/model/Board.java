@@ -11,12 +11,11 @@ public class Board {
     private Player player1;
     private Player player2;
     private boolean gameOver;
-    private List<Place> winningStones;
-
-
+    private final Place[][] winningStones = new Place[size][size];
     public Board() {
         initializePlayers();
         initializeBoard();
+        resetWinningStones();
         currentPlayer = player1; // Player 1 starts the game
     }
 
@@ -33,6 +32,14 @@ public class Board {
         }
     }
 
+    private void resetWinningStones() {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                winningStones[i][j] = new Place(i, j);
+            }
+        }
+    }
+
     public Player getCurrentPlayer() {
         return currentPlayer;
     }
@@ -43,6 +50,10 @@ public class Board {
 
     public Place[][] getIntersections() {
         return intersections;
+    }
+
+    public Place[][] getWinningStones() {
+        return winningStones;
     }
     public boolean placeStone(int x, int y, Player cpuPlayer) {
         if (isWithinBounds(x, y) && intersections[x][y].getPlayer() == null && !gameOver) {
@@ -81,15 +92,16 @@ public class Board {
 
         return false;
     }
-
-
     int countStonesInDirection(int x, int y, int dx, int dy, Player player) {
         int count = 1; // Start with 1 for the stone at (x, y)
         int nx = x + dx;
         int ny = y + dy;
+        resetWinningStones();
 
         while (isWithinBounds(nx, ny) && intersections[nx][ny].getPlayer() == player) {
             count++;
+            winningStones[x][y] = intersections[x][y];
+            winningStones[nx][ny] = intersections[nx][ny];
             nx += dx;
             ny += dy;
         }
@@ -99,45 +111,14 @@ public class Board {
 
         while (isWithinBounds(nx, ny) && intersections[nx][ny].getPlayer() == player) {
             count++;
+            winningStones[x][y] = intersections[x][y];
+            winningStones[nx][ny] = intersections[nx][ny];
             nx -= dx;
             ny -= dy;
         }
 
         return count;
     }
-
-    private List<Place> getWinningRow(int x, int y) {
-        List<Place> row = new ArrayList<>();
-        Player player = intersections[x][y].getPlayer();
-
-        // Horizontal
-        if (countStonesInDirection(x, y, 1, 0, player) >= 5) {
-            for (int i = x - 4; i <= x + 4; i++) {
-                row.add(intersections[i][y]);
-            }
-        }
-        // Vertical
-        else if (countStonesInDirection(x, y, 0, 1, player) >= 5) {
-            for (int j = y - 4; j <= y + 4; j++) {
-                row.add(intersections[x][j]);
-            }
-        }
-        // Diagonal \
-        else if (countStonesInDirection(x, y, 1, 1, player) >= 5) {
-            for (int i = x - 4, j = y - 4; i <= x + 4; i++, j++) {
-                row.add(intersections[i][j]);
-            }
-        }
-        // Diagonal /
-        else if (countStonesInDirection(x, y, 1, -1, player) >= 5) {
-            for (int i = x - 4, j = y + 4; i <= x + 4; i++, j--) {
-                row.add(intersections[i][j]);
-            }
-        }
-
-        return row;
-    }
-
     public boolean isGameOver() {
         return gameOver;
     }
@@ -151,7 +132,4 @@ public class Board {
         this.currentPlayer = player;
     }
 
-    public List<Place> getWinningStones() {
-        return winningStones;
-    }
 }
