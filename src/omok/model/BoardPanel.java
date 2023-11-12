@@ -9,6 +9,7 @@ public class BoardPanel extends JPanel {
     public static final int CELL_SIZE = 30;
     public static final int PADDING = 20;
     private final Board board;
+    private static final int STONE_RADIUS = CELL_SIZE / 2;
 
     public BoardPanel(Board board) {
         this.board = board;
@@ -37,30 +38,24 @@ public class BoardPanel extends JPanel {
 
     private void drawStones(Graphics g) {
         Place[][] intersections = board.getIntersections();
-
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
                 Place place = intersections[i][j];
                 if (place.isOccupied()) {
-                    int x = PADDING + i * CELL_SIZE - CELL_SIZE / 2;
-                    int y = PADDING + j * CELL_SIZE - CELL_SIZE / 2;
+                    int x = PADDING + i * CELL_SIZE - STONE_RADIUS;
+                    int y = PADDING + j * CELL_SIZE - STONE_RADIUS;
                     Player player = place.getPlayer();
+
+                    // Draw the black outline for white stones
+                    if (player.getColor() == Color.WHITE) {
+                        g.setColor(Color.BLACK);
+                        g.drawOval(x, y, 2 * STONE_RADIUS, 2 * STONE_RADIUS);
+                    }
+
                     g.setColor(player.getColor());
-                    g.fillOval(x, y, CELL_SIZE, CELL_SIZE);
+                    g.fillOval(x, y, 2 * STONE_RADIUS, 2 * STONE_RADIUS);
                 }
             }
         }
     }
-
-//    private void highlightWinningRow(Graphics g) {
-//        List<Place> winningRow = board.getWinningRow();
-//        if (winningRow != null) {
-//            g.setColor(Color.RED); // You can change the color as needed
-//            for (Place place : winningRow) {
-//                int x = PADDING + place.getX() * CELL_SIZE;
-//                int y = PADDING + place.getY() * CELL_SIZE;
-//                g.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-//            }
-//        }
-//    }
 }

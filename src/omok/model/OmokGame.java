@@ -2,9 +2,7 @@ package omok.model;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 
 public class OmokGame extends JFrame {
     private Board board;
@@ -37,15 +35,33 @@ public class OmokGame extends JFrame {
 
     private void setupMenuBar(int gameType) {
         JMenuBar menuBar = new JMenuBar();
+
+        // Create a "Game" menu
         JMenu gameMenu = new JMenu("Game");
+        gameMenu.setMnemonic(KeyEvent.VK_G); // Alt + G will activate the menu
+
+        // Create a "Restart Game" item
         JMenuItem restartMenuItem = new JMenuItem("Restart Game");
+        restartMenuItem.addActionListener(e -> restartGame(gameType));
+        restartMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK));
+        restartMenuItem.setMnemonic(KeyEvent.VK_R); // Alt + R will activate the item
 
-        restartMenuItem.addActionListener(e -> restartGame(gameType)); // Pass gameType when restarting game
+        // Create a "Quit Game" item
+        JMenuItem quitMenuItem = new JMenuItem("Quit Game");
+        quitMenuItem.addActionListener(e -> quitGame());
+        quitMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
+        quitMenuItem.setMnemonic(KeyEvent.VK_Q); // Alt + Q will activate the item
 
+        // Add items to the "Game" menu
         gameMenu.add(restartMenuItem);
+        gameMenu.add(quitMenuItem);
+
+        // Add the "Game" menu to the menu bar
         menuBar.add(gameMenu);
+
         setJMenuBar(menuBar);
     }
+
 
     private void startCpuGame(ActionEvent e) {
         board = new Board(); // Reset or initialize the board
@@ -189,13 +205,34 @@ public class OmokGame extends JFrame {
                 break;
         }
     }
-private void restartGame(int gameType) {
-        if(gameType == 1) {
-            startHumanGame(null);
-        } else if (gameType == 2) {
-            startCpuGame(null);
+    private void restartGame(int gameType) {
+        int confirm = JOptionPane.showConfirmDialog(
+                boardPanel,
+                "Are you sure you want to start a new game?",
+                "Confirm Restart",
+                JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            if (gameType == 1) {
+                startHumanGame(null);
+            } else if (gameType == 2) {
+                startCpuGame(null);
+            }
         }
-}
+    }
+
+    private void quitGame() {
+        int confirm = JOptionPane.showConfirmDialog(
+                boardPanel,
+                "Are you sure you want to quit the game?",
+                "Confirm Quit",
+                JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            System.exit(0); // Exit the game
+        }
+    }
+
 
     private void setupGameUI() {
         setTitle("Omok Game");
