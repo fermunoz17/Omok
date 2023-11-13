@@ -11,6 +11,8 @@ public class Board {
     private Player player1;
     private Player player2;
     private boolean gameOver;
+
+    public int gameType;
     private final Place[][] winningStones = new Place[size][size];
     public Board() {
         initializePlayers();
@@ -132,4 +134,10 @@ public class Board {
         this.currentPlayer = player;
     }
 
+    public void setGameType(int gameType) {
+        this.gameType = gameType;
+    }
+    public int getGameType() {
+        return gameType;
+    }
 }

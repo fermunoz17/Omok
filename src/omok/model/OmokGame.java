@@ -12,6 +12,10 @@ public class OmokGame extends JFrame {
 
     private JButton startButton;
 
+    private JToolBar toolBar;
+    private JButton restartButton;
+    private JButton exitButton;
+
     public OmokGame() {
         setupInitialUI();
     }
@@ -19,22 +23,22 @@ public class OmokGame extends JFrame {
     private void setupInitialUI() {
         setTitle("Omok Game Selection");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new FlowLayout());
-        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
 
+        JPanel buttonPanel = new JPanel(new FlowLayout());
         humanGameButton = new JButton("Human vs. Human");
         cpuGameButton = new JButton("Human vs. CPU");
-        startButton = new JButton("Start Game");
 
         humanGameButton.addActionListener(this::startHumanGame);
         cpuGameButton.addActionListener(this::startCpuGame);
 
+        buttonPanel.add(humanGameButton);
+        buttonPanel.add(cpuGameButton);
 
-
-        add(humanGameButton);
-        add(cpuGameButton);
+        add(buttonPanel, BorderLayout.CENTER);
 
         pack();
+        setLocationRelativeTo(null);
         setVisible(true);
     }
 
@@ -64,18 +68,45 @@ public class OmokGame extends JFrame {
         // Add the "Game" menu to the menu bar
         menuBar.add(gameMenu);
 
-        setJMenuBar(menuBar);
+        setJMenuBar(menuBar); // Set the new menu bar
+
+        // Create a Box container to hold both the MenuBar and the toolbar horizontally
+        Box menuAndToolbarBox = Box.createHorizontalBox();
+        menuAndToolbarBox.add(menuBar);
+        menuAndToolbarBox.add(Box.createHorizontalStrut(10)); // Add spacing
+        setupToolBar(menuAndToolbarBox, gameType); // Add the buttons to the toolbar
+
+        // Add the menuAndToolbarBox to the NORTH of the main frame
+        add(menuAndToolbarBox, BorderLayout.NORTH);
     }
 
+
+    private void setupToolBar(Box menuAndToolbarPanel, int gameType) {
+        // Create the toolbar and add buttons
+        toolBar = new JToolBar();
+        restartButton = new JButton("Restart Game");
+        exitButton = new JButton("Exit Game");
+
+        restartButton.addActionListener(e -> restartGame(board != null ? board.getGameType() : 0));
+        exitButton.addActionListener(e -> quitGame());
+
+        toolBar.add(restartButton);
+        toolBar.add(exitButton);
+
+        // Add the toolbar to the menuAndToolbarPanel
+        menuAndToolbarPanel.add(toolBar);
+    }
 
     private void startCpuGame(ActionEvent e) {
         board = new Board(); // Reset or initialize the board
         boardPanel = new BoardPanel(board);
+
+        board.setGameType(2);
         setupGameUI();
+        setupMenuBar(board.getGameType());
+//        setupToolBar(2);
 
-        setupMenuBar(2); // Pass game type as 2 (human vs. CPU)
-
-        Player humanPlayer = new Player("Human", Color.BLACK);
+        Player humanPlayer = new Player("Human", Color.darkGray);
         Player cpuPlayer = new Player("CPU", Color.WHITE);
         board.setCurrentPlayer(humanPlayer);  // Human starts first
 
@@ -153,36 +184,44 @@ public class OmokGame extends JFrame {
     private void startHumanGame(ActionEvent e) {
         board = new Board();
         boardPanel = new BoardPanel(board);
-        final Player[] currentPlayer = {board.getCurrentPlayer()}; // Declare currentPlayer as a final array
-
-        setupMenuBar(1); // Pass game type as 1 (human vs. human)
-
+        board.setGameType(1);
+        setupMenuBar(board.getGameType()); // Pass game type as 1 (human vs. human)
         setupGameUI();
+
+        Player humanPlayer1 = new Player("Player 1", Color.darkGray);
+        Player humanPlayer2 = new Player("Player 2", Color.WHITE);
+        board.setCurrentPlayer(humanPlayer1); // Player 1 starts first
 
         boardPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int cellWidth = boardPanel.getCellWidth();
-                int offsetX = e.getX() - BoardPanel.PADDING;
-                int offsetY = e.getY() - BoardPanel.PADDING;
+                if (!board.isGameOver()) {
+                    int cellWidth = boardPanel.getCellWidth();
+                    int offsetX = e.getX() - BoardPanel.PADDING;
+                    int offsetY = e.getY() - BoardPanel.PADDING;
 
-                if (offsetX >= 0 && offsetY >= 0) {
-                    int col = offsetX / cellWidth;
-                    int row = offsetY / cellWidth;
+                    if (offsetX >= 0 && offsetY >= 0) {
+                        int col = offsetX / cellWidth;
+                        int row = offsetY / cellWidth;
 
-                    if (row < board.getSize() && col < board.getSize()) {
-                        if (board.placeStone(col, row, currentPlayer[0])) { // Access currentPlayer from the array
-                            boardPanel.repaint();
-                            if (board.checkForWin(col, row)) {
-                                handleGameOver(currentPlayer[0], 1);
+                        if (row < board.getSize() && col < board.getSize()) {
+                            Player currentPlayer = board.getCurrentPlayer();
+                            if (board.placeStone(col, row, currentPlayer)) {
+                                boardPanel.repaint();
+                                if (board.checkForWin(col, row)) {
+                                    handleGameOver(currentPlayer, 1);
+                                } else {
+                                    // Switch to the other player
+                                    board.setCurrentPlayer(currentPlayer.equals(humanPlayer1) ? humanPlayer2 : humanPlayer1);
+                                }
                             }
-                            currentPlayer[0] = board.getCurrentPlayer(); // Update currentPlayer
                         }
                     }
                 }
             }
         });
     }
+
 
     private void handleGameOver(Player winner, int gameType) {
         Object[] options = {"Quit Game", "Restart Game", "Choose Mode"};
@@ -204,12 +243,50 @@ public class OmokGame extends JFrame {
                 restartGame(gameType);
                 break;
             case JOptionPane.CANCEL_OPTION:
-                setupInitialUI();
+                // Create a custom dialog to cover the entire screen
+                JDialog chooseModeDialog = new JDialog(this, "Choose Mode", Dialog.ModalityType.APPLICATION_MODAL);
+                chooseModeDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+                // Create a panel for the options
+                JPanel optionsPanel = new JPanel();
+                optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.Y_AXIS));
+                optionsPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+                // Add buttons to the panel
+                JButton humanVsHumanButton = new JButton("Human vs. Human");
+                JButton humanVsCpuButton = new JButton("Human vs. CPU");
+                JButton cancelButton = new JButton("Cancel");
+
+                // Add action listeners to the buttons
+                humanVsHumanButton.addActionListener(e -> {
+                    chooseModeDialog.dispose(); // Close the dialog
+                    startHumanGame(null); // Start a new human vs. human game
+                });
+                humanVsCpuButton.addActionListener(e -> {
+                    chooseModeDialog.dispose(); // Close the dialog
+                    startCpuGame(null); // Start a new human vs. CPU game
+                });
+                cancelButton.addActionListener(e -> chooseModeDialog.dispose()); // Close the dialog
+
+                // Add buttons to the panel
+                optionsPanel.add(humanVsHumanButton);
+                optionsPanel.add(humanVsCpuButton);
+                optionsPanel.add(cancelButton);
+
+                // Add the panel to the dialog
+                chooseModeDialog.add(optionsPanel);
+
+                // Set the dialog size to cover the entire screen
+//                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+//                chooseModeDialog.setSize(screenSize);
+                chooseModeDialog.setLocationRelativeTo(null); // Center the dialog
+                chooseModeDialog.setVisible(true);
                 break;
             default:
                 break;
         }
     }
+
     private void restartGame(int gameType) {
         int confirm = JOptionPane.showConfirmDialog(
                 boardPanel,

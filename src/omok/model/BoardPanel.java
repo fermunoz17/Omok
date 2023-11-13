@@ -2,7 +2,6 @@ package omok.model;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
 
 public class BoardPanel extends JPanel {
     public static final int BOARD_SIZE = 15;
@@ -24,13 +23,19 @@ public class BoardPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        drawBackground(g);
         drawBoard(g);
         drawStones(g);
         highlightStones(g);
     }
 
-    private void drawBoard(Graphics g) {
+    private void drawBackground(Graphics g) {
         g.setColor(Color.BLACK);
+        g.fillRect(0, 0, getWidth(), getHeight());
+    }
+
+    private void drawBoard(Graphics g) {
+        g.setColor(Color.gray);
         for (int i = 0; i < BOARD_SIZE; i++) {
             g.drawLine(PADDING, PADDING + i * CELL_SIZE, PADDING + (BOARD_SIZE - 1) * CELL_SIZE, PADDING + i * CELL_SIZE);
             g.drawLine(PADDING + i * CELL_SIZE, PADDING, PADDING + i * CELL_SIZE, PADDING + (BOARD_SIZE - 1) * CELL_SIZE);
@@ -46,12 +51,6 @@ public class BoardPanel extends JPanel {
                     int x = PADDING + i * CELL_SIZE - STONE_RADIUS;
                     int y = PADDING + j * CELL_SIZE - STONE_RADIUS;
                     Player player = place.getPlayer();
-
-                    // Draw the black outline for white stones
-                    if (player.getColor() == Color.WHITE) {
-                        g.setColor(Color.BLACK);
-                        g.drawOval(x, y, 2 * STONE_RADIUS, 2 * STONE_RADIUS);
-                    }
 
                     g.setColor(player.getColor());
                     g.fillOval(x, y, 2 * STONE_RADIUS, 2 * STONE_RADIUS);
