@@ -1,0 +1,95 @@
+@startuml
+
+class Board {
+    Player currentPlayer
+    Player player1
+    Player player2
+    boolean gameOver
+    int gameType
+    -- Omitted some return type attributes for clarity --
+    void initializePlayers()
+    void initializeBoard()
+    void resetWinningStones()
+    Player getCurrentPlayer()
+    Player getOpponentPlayer()
+    void placeStone(int x, int y, Player cpuPlayer)
+    boolean isWithinBounds(int x, int y)
+    void togglePlayer()
+    boolean checkForWin(int placedX, int placedY)
+    int countStonesInDirection(int x, int y, int dx, int dy, Player player)
+    boolean isGameOver()
+    int getSize()
+    void setCurrentPlayer(Player player)
+    void setGameType(int gameType)
+    int getGameType()
+}
+
+class BoardPanel {
+    BoardPanel(Board board)
+    int getCellWidth()
+    void paintComponent(Graphics g)
+    void drawBackground(Graphics g)
+    void drawBoard(Graphics g)
+    void drawStones(Graphics g)
+    void highlightStones(Graphics g)
+}
+
+class OmokGame {
+    Board board
+    BoardPanel boardPanel
+    JButton humanGameButton
+    JButton cpuGameButton
+    JButton startButton
+    JToolBar toolBar
+    JButton restartButton
+    JButton exitButton
+    JLabel turnLabel
+    void OmokGame()
+    void setupInitialUI()
+    void setGameType(int gameType)
+    void startGame()
+    void setupMenuBar(int gameType)
+    void aboutPopUp()
+    void rules()
+    void setupToolBar(Box menuAndToolbarPanel, int gameType)
+    void startCpuGame(ActionEvent e)
+    void mouseClicked(MouseEvent e)
+    void displayTurn()
+    void handleCpuMove(Player cpuPlayer, Player humanPlayer)
+    Place findCpuMove(Player cpuPlayer, Player humanPlayer)
+    void startHumanGame(ActionEvent e)
+    void mouseClicked(MouseEvent e)
+    void handleGameOver(Player winner, int gameType)
+    void restartGame(int gameType)
+    void quitGame()
+    void setupGameUI()
+    static void main(String[] args)
+}
+
+class Place {
+    Player player
+    int x
+    int y
+    Place(int x, int y)
+    boolean isOccupied()
+    Player getPlayer()
+    void setPlayer(Player player)
+    int getX()
+    int getY()
+}
+
+class Player {
+    String name
+    Color color
+    Player(String name, Color color)
+    String getName()
+    Color getColor()
+}
+
+Board "1" -- "2" Player : has >
+BoardPanel "1" -- "1" Board : displays >
+OmokGame "1" *-- "1" Board : uses >
+OmokGame "1" *-- "1" BoardPanel : uses >
+Place "0..*" -- "2" Player : occupied by >
+
+@enduml

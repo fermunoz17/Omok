@@ -4,23 +4,26 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * The type Omok game.
+ * @author Fernando Muñoz
+ */
 public class OmokGame extends JFrame {
     private Board board;
     private BoardPanel boardPanel;
     private JButton humanGameButton;
     private JButton cpuGameButton;
-
     private JButton startButton;
-
     private JToolBar toolBar;
     private JButton restartButton;
     private JButton exitButton;
-
+    private JButton pairOptionButton;
     private int turnNumber = 1;
     private JLabel turnLabel;
 
-
-
+    /**
+     * Instantiates a new Omok game.
+     */
     public OmokGame() {
         setupInitialUI();
     }
@@ -60,7 +63,6 @@ public class OmokGame extends JFrame {
     }
 
     private void startGame() {
-        turnNumber = 1;
         if (selectedGameType == 1) {
             startHumanGame(null);
         } else if (selectedGameType == 2) {
@@ -136,7 +138,7 @@ public class OmokGame extends JFrame {
 
         String aboutMessage = "Omok Game\n\n" +
                 "Version: 1.0\n" +
-                "Author: [Your Name]\n\n" +
+                "Author: [Fernando Muñoz]\n\n" +
                 "Description:\n" +
                 "Omok Game is a classic two-player strategy board game where " +
                 "the objective is to be the first to get five of your own stones in a row, either horizontally, vertically, or diagonally, on a 15x15 grid. " +
@@ -197,37 +199,49 @@ public class OmokGame extends JFrame {
         // Create the toolbar and add buttons
         toolBar = new JToolBar();
 
-        // Create the "Restart Game" button with an icon
-        restartButton = new JButton();
-        ImageIcon restartIcon = new ImageIcon("restart.png"); // Specify the correct path to your restart icon
-        Image restartIconImage = restartIcon.getImage();
-        Image scaledRestartIconImage = restartIconImage.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-        ImageIcon scaledRestartIcon = new ImageIcon(scaledRestartIconImage);
-        restartButton.setIcon(scaledRestartIcon);
-        restartButton.setToolTipText("Restart Game"); // Optional tooltip text
+        // Create a larger font
+        Font largerFont = new Font(toolBar.getFont().getName(), Font.BOLD, 16);
 
-        // Create the "Exit Game" button with an icon
-        exitButton = new JButton();
-        ImageIcon exitIcon = new ImageIcon("exit.png"); // Specify the correct path to your exit icon
-        Image exitIconImage = exitIcon.getImage();
-        Image scaledExitIconImage = exitIconImage.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-        ImageIcon scaledExitIcon = new ImageIcon(scaledExitIconImage);
-        exitButton.setIcon(scaledExitIcon);
-        exitButton.setToolTipText("Exit Game"); // Optional tooltip text
-
+        restartButton = new JButton("Restart Game");
+        restartButton.setFont(largerFont);
+        restartButton.setToolTipText("Restart Game");
         restartButton.addActionListener(e -> restartGame(board != null ? board.getGameType() : 0));
+
+        pairOptionButton = new JButton("Pair...");
+        pairOptionButton.setFont(largerFont);
+        pairOptionButton.setToolTipText("Pair...");
+        // Inside the OmokGame class
+
+// Assuming the pairOptionButton is already initialized somewhere in this class
+        pairOptionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Create and display the ServerUI
+                ServerUI chatDialog = new ServerUI();
+                chatDialog.setSize(400, 400); // Set the size or use the default size
+                chatDialog.setVisible(true); // Make the dialog visible
+            }
+        });
+
+
+        exitButton = new JButton("Exit Game");
+        exitButton.setFont(largerFont);
+        exitButton.setToolTipText("Exit Game");
         exitButton.addActionListener(e -> quitGame());
+
+        // Set larger button size
+        Dimension buttonSize = new Dimension(150, 50); // Adjust the size as needed
+        restartButton.setPreferredSize(buttonSize);
+        pairOptionButton.setPreferredSize(buttonSize);
+        exitButton.setPreferredSize(buttonSize);
 
         toolBar.add(restartButton);
         toolBar.add(exitButton);
+        toolBar.add(pairOptionButton);
 
         // Add the toolbar to the menuAndToolbarPanel
         menuAndToolbarPanel.add(toolBar);
     }
-
-
-
-
     private void startCpuGame(ActionEvent e) {
         board = new Board(); // Reset or initialize the board
         boardPanel = new BoardPanel(board);
@@ -239,7 +253,6 @@ public class OmokGame extends JFrame {
         Player humanPlayer = new Player("Human", Color.darkGray);
         Player cpuPlayer = new Player("CPU", Color.WHITE);
         board.setCurrentPlayer(humanPlayer);  // Human starts first
-
         boardPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -380,9 +393,11 @@ public class OmokGame extends JFrame {
                 System.exit(0);
                 break;
             case JOptionPane.NO_OPTION:
+                turnNumber = 1;
                 restartGame(gameType);
                 break;
             case JOptionPane.CANCEL_OPTION:
+                turnNumber = 1;
                 setupInitialUI();
                 break;
             default:
@@ -398,6 +413,7 @@ public class OmokGame extends JFrame {
                 JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
+            turnNumber = 0;
             if (gameType == 1) {
                 startHumanGame(null);
             } else if (gameType == 2) {
@@ -424,6 +440,8 @@ public class OmokGame extends JFrame {
         getContentPane().removeAll();
         getContentPane().add(boardPanel, BorderLayout.CENTER);
 
+        turnNumber = 0;
+
         // Create and add the turnLabel to the SOUTH of the main frame
         turnLabel = new JLabel();
         turnLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -433,7 +451,12 @@ public class OmokGame extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(OmokGame::new);
-    }
+    /**
+     * The entry point of application.
+     *
+     * @param args the input arguments
+     */
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(OmokGame::new);
+//    }
 }

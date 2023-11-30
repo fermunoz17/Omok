@@ -3,18 +3,41 @@ package omok.model;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * The type Board panel.
+ * @author Fernando Muñoz
+ */
 public class BoardPanel extends JPanel {
+    /**
+     * The constant BOARD_SIZE.
+     */
     public static final int BOARD_SIZE = 15;
+    /**
+     * The constant CELL_SIZE.
+     */
     public static final int CELL_SIZE = 30;
+    /**
+     * The constant PADDING.
+     */
     public static final int PADDING = 20;
     private final Board board;
     private static final int STONE_RADIUS = CELL_SIZE / 2;
 
+    /**
+     * Instantiates a new Board panel.
+     *
+     * @param board the board
+     */
     public BoardPanel(Board board) {
         this.board = board;
         setPreferredSize(new Dimension((BOARD_SIZE * CELL_SIZE) + (2 * PADDING), (BOARD_SIZE * CELL_SIZE) + (2 * PADDING)));
     }
 
+    /**
+     * Gets cell width.
+     *
+     * @return the cell width
+     */
     public int getCellWidth() {
         int totalPadding = 2 * PADDING;
         return (getWidth() - totalPadding) / board.getSize();

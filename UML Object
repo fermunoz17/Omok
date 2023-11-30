@@ -1,0 +1,53 @@
+@startuml
+
+object board {
+    currentPlayer = player1
+    gameOver = false
+    gameType = 1
+}
+
+object player1 {
+    name = "P1"
+    color = Color.BLACK
+}
+
+object player2 {
+    name = "Bob"
+    color = Color.RED
+}
+
+object boardPanel {
+    BOARD_SIZE = 15
+    CELL_SIZE = 30
+    PADDING = 20
+    STONE_RADIUS = 15
+    board = board
+}
+
+object omokGame {
+    board = board
+    boardPanel = boardPanel
+}
+
+object place1 {
+    player = player1
+    x = 5
+    y = 5
+}
+
+object place2 {
+    player = player2
+    x = 5
+    y = 6
+}
+
+board --> player1 : currentPlayer
+board --> player2
+boardPanel --> board
+omokGame --> board
+omokGame --> boardPanel
+omokGame --> player1 : currentPlayer
+place1 --> player1 : occupied by
+place2 --> player2 : occupied by
+
+@enduml
